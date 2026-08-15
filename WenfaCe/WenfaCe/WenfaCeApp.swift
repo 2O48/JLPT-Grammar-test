@@ -11,7 +11,7 @@ struct WenfaCeApp: App {
         let configuration = ModelConfiguration(
             "PracticeHistory",
             schema: schema,
-            cloudKitDatabase: .none
+            cloudKitDatabase: .private("iCloud.com.2o48.jlptgrammartest")
         )
 
         do {

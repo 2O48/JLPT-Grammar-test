@@ -30,7 +30,7 @@ final class AISettingsStore: ObservableObject {
         model = defaults.string(forKey: modelKey) ?? "gpt-4.1-mini"
         instruction = defaults.string(forKey: instructionKey) ?? ""
         do {
-            token = try KeychainTokenStore.read() ?? ""
+            token = try KeychainTokenStore.read() ?? KeychainTokenStore.migrateLegacyToken() ?? ""
         } catch {
             tokenError = "无法读取钥匙串中的 Token。"
         }
@@ -70,10 +70,11 @@ final class AISettingsStore: ObservableObject {
 
 enum KeychainTokenStore {
     private static let account = "default"
-    private static let service = "com.2o48.jlptgrammartest.ai-token.local"
+    private static let service = "com.2o48.jlptgrammartest.ai-token"
+    private static let legacyService = "com.2o48.jlptgrammartest.ai-token.local"
 
     static func read() throws -> String? {
-        var query = itemQuery()
+        var query = synchronizableQuery()
         query[kSecReturnData as String] = true
         query[kSecMatchLimit as String] = kSecMatchLimitOne
         var result: CFTypeRef?
@@ -92,7 +93,7 @@ enum KeychainTokenStore {
         }
 
         let valueData = Data(token.utf8)
-        let query = itemQuery()
+        let query = synchronizableQuery()
         let updateStatus = SecItemUpdate(query as CFDictionary, [kSecValueData as String: valueData] as CFDictionary)
         switch updateStatus {
         case errSecSuccess:
@@ -100,7 +101,7 @@ enum KeychainTokenStore {
         case errSecItemNotFound:
             var attributes = query
             attributes[kSecValueData as String] = valueData
-            attributes[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+            attributes[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
             let addStatus = SecItemAdd(attributes as CFDictionary, nil)
             guard addStatus == errSecSuccess else { throw KeychainError.unexpectedStatus(addStatus) }
         default:
@@ -109,18 +110,42 @@ enum KeychainTokenStore {
     }
 
     static func delete() throws {
-        let query = itemQuery()
+        let query = synchronizableQuery()
         let status = SecItemDelete(query as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {
             throw KeychainError.unexpectedStatus(status)
         }
     }
 
-    private static func itemQuery() -> [String: Any] {
+    static func migrateLegacyToken() throws -> String? {
+        let legacyQuery: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: legacyService,
+            kSecAttrAccount as String: account,
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne
+        ]
+        var result: CFTypeRef?
+        let status = SecItemCopyMatching(legacyQuery as CFDictionary, &result)
+        if status == errSecItemNotFound { return nil }
+        guard status == errSecSuccess, let data = result as? Data, let token = String(data: data, encoding: .utf8) else {
+            throw KeychainError.unexpectedStatus(status)
+        }
+
+        try save(token)
+        let deleteStatus = SecItemDelete(legacyQuery as CFDictionary)
+        guard deleteStatus == errSecSuccess || deleteStatus == errSecItemNotFound else {
+            throw KeychainError.unexpectedStatus(deleteStatus)
+        }
+        return token
+    }
+
+    private static func synchronizableQuery() -> [String: Any] {
         [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
-            kSecAttrAccount as String: account
+            kSecAttrAccount as String: account,
+            kSecAttrSynchronizable as String: kCFBooleanTrue as Any
         ]
     }
 
