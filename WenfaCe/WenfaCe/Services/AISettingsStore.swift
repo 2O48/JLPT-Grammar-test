@@ -118,13 +118,14 @@ enum KeychainTokenStore {
     }
 
     static func migrateLegacyToken() throws -> String? {
-        let legacyQuery: [String: Any] = [
+        let legacyIdentityQuery: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: legacyService,
-            kSecAttrAccount as String: account,
-            kSecReturnData as String: true,
-            kSecMatchLimit as String: kSecMatchLimitOne
+            kSecAttrAccount as String: account
         ]
+        var legacyQuery = legacyIdentityQuery
+        legacyQuery[kSecReturnData as String] = true
+        legacyQuery[kSecMatchLimit as String] = kSecMatchLimitOne
         var result: CFTypeRef?
         let status = SecItemCopyMatching(legacyQuery as CFDictionary, &result)
         if status == errSecItemNotFound { return nil }
@@ -133,7 +134,7 @@ enum KeychainTokenStore {
         }
 
         try save(token)
-        let deleteStatus = SecItemDelete(legacyQuery as CFDictionary)
+        let deleteStatus = SecItemDelete(legacyIdentityQuery as CFDictionary)
         guard deleteStatus == errSecSuccess || deleteStatus == errSecItemNotFound else {
             throw KeychainError.unexpectedStatus(deleteStatus)
         }

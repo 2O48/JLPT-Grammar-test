@@ -21,7 +21,7 @@ struct AISettingsView: View {
                     Label(settings.isConfigured ? "AI 已配置" : "AI 未配置", systemImage: settings.isConfigured ? "checkmark.circle" : "exclamationmark.circle")
                         .foregroundStyle(settings.isConfigured ? .green : .secondary)
                 } footer: {
-                    Text("设置保存在当前设备；通过备份文件在设备间手动迁移。")
+                    Text("练习记录、收藏和 API Token 会通过 iCloud 同步；其余设置可通过备份文件在设备间迁移。")
                 }
 
                 Section("OpenAI 兼容接口") {
@@ -101,7 +101,7 @@ struct AISettingsView: View {
         focusedField = nil
         do {
             try settings.save()
-            alert = SettingsAlert(title: "已保存", message: "设置已保存在当前设备。")
+            alert = SettingsAlert(title: "已保存", message: "Token 会通过 iCloud 钥匙串同步。")
         } catch {
             showError("钥匙串写入失败：\(error.localizedDescription)")
         }
