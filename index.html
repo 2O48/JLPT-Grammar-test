@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>文法册 | JLPT Grammar Practice</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+JP:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#list" aria-label="文法册首页"><span class="brand-mark">文</span><span>文法册<small>GRAMMAR NOTES</small></span></a>
+        <nav class="main-nav" aria-label="主导航">
+          <button class="nav-item active" data-view="list"><span>◫</span>语法列表</button>
+          <button class="nav-item" data-view="records"><span>◷</span>练习记录</button>
+          <button class="nav-item" data-view="settings"><span>⚙</span>AI 设置</button>
+        </nav>
+        <div class="sidebar-summary"><span class="summary-label">已收录</span><strong id="total-count">--</strong><span>条 JLPT 语法</span></div>
+        <p class="source-note">数据来源<br><a href="https://enuncia.online/zh/2024/12/21/jlpt-n5-grammar-list-zh/" target="_blank" rel="noreferrer">Enuncia JLPT Grammar List</a></p>
+      </aside>
+      <main class="main-content">
+        <header class="topbar"><p id="section-eyebrow">JLPT Grammar Library</p><div class="status-dot"><i></i><span id="ai-status">AI 未连接</span></div></header>
+        <section id="list-view" class="view active">
+          <div class="page-heading"><div><h1>语法列表</h1><p>按等级浏览，随时开始一轮回忆练习。</p></div><button class="primary-button" id="open-setup">开始答题 <span>→</span></button></div>
+          <div class="filter-bar">
+            <label class="search-field"><span>⌕</span><input id="search-input" type="search" placeholder="搜索语法、中文含义或用法" /></label>
+            <div class="level-filters" id="level-filters"><button class="selected" data-level="all">全部</button><button data-level="N5">N5</button><button data-level="N4">N4</button><button data-level="N3">N3</button><button data-level="N2">N2</button><button data-level="N1">N1</button></div>
+          </div>
+          <div class="list-meta"><span id="result-count">-- 条语法</span><span>按五十音 / 原始列表排序</span></div>
+          <div id="grammar-list" class="grammar-list"></div>
+        </section>
+        <section id="records-view" class="view">
+          <div class="page-heading"><div><h1>练习记录</h1><p>回看每次作答与 AI 的逐题评价。</p></div><button class="secondary-button" id="clear-records">清除记录</button></div>
+          <div id="records-list" class="records-list"></div>
+        </section>
+        <section id="settings-view" class="view settings-view">
+          <div class="page-heading"><div><h1>AI 设置</h1><p>使用 OpenAI 兼容接口评判开放式答案。</p></div></div>
+          <form id="settings-form" class="settings-form">
+            <div class="setting-callout"><span>AI</span><div><strong>回答将发送至你设置的接口</strong><p>仅在点击“提交并评判”后发送当前题目、标准含义与答案。设置保存在此浏览器本地。</p></div></div>
+            <label>API 地址<input name="baseUrl" placeholder="https://api.openai.com/v1" /></label>
+            <label>模型名称<input name="model" placeholder="gpt-4.1-mini" /></label>
+            <label>API Token<input name="apiKey" type="password" placeholder="sk-..." autocomplete="off" /></label>
+            <label>附加指令<textarea name="instruction" rows="4" placeholder="例如：评价时优先指出用词是否准确、含义范围是否完整。"></textarea></label>
+            <div class="form-actions"><button type="submit" class="primary-button">保存 AI 设置</button><span id="save-message"></span></div>
+          </form>
+        </section>
+      </main>
+    </div>
+    <div id="quiz-modal" class="modal" aria-hidden="true"><div class="modal-backdrop" data-close-modal></div><div class="modal-dialog setup-dialog" role="dialog" aria-modal="true" aria-labelledby="setup-title"><button class="close-button" data-close-modal aria-label="关闭">×</button><p class="eyebrow">NEW SESSION</p><h2 id="setup-title">设置本次练习</h2><form id="quiz-setup-form"><div class="setup-grid"><label>题目数量<select name="count"><option value="5">5 题</option><option value="10" selected>10 题</option><option value="20">20 题</option><option value="30">30 题</option></select></label><fieldset><legend>题目范围</legend><div class="check-row"><label><input type="checkbox" name="levels" value="N5" checked /> N5</label><label><input type="checkbox" name="levels" value="N4" checked /> N4</label><label><input type="checkbox" name="levels" value="N3" checked /> N3</label><label><input type="checkbox" name="levels" value="N2" checked /> N2</label><label><input type="checkbox" name="levels" value="N1" checked /> N1</label></div></fieldset><fieldset><legend>答题方式</legend><div class="mode-list"><label><input type="radio" name="mode" value="jp-cn" checked /><span><b>日 → 中</b><small>看日语语法，填写中文含义</small></span></label><label><input type="radio" name="mode" value="cn-jp" /><span><b>中 → 日</b><small>看中文含义，填写对应语法</small></span></label><label><input type="radio" name="mode" value="mixed" /><span><b>混合</b><small>每道题随机决定方向</small></span></label></div></fieldset></div><button type="submit" class="primary-button full-button">开始本次练习 <span>→</span></button></form></div></div>
+    <div id="quiz-screen" class="quiz-screen" hidden><header class="quiz-header"><a class="brand" href="#list"><span class="brand-mark">文</span><span>文法册<small>PRACTICE</small></span></a><div class="quiz-progress"><span id="quiz-count">1 / 10</span><div><i id="progress-fill"></i></div></div><button id="quit-quiz" class="quiet-button">结束练习</button></header><main class="quiz-main"><p id="question-level" class="eyebrow">JLPT N3</p><p id="question-label" class="question-label">写出它的中文含义</p><article class="quiz-card"><div class="card-accent"></div><h1 id="question-prompt"></h1><p id="question-rule"></p><details id="quiz-example" class="quiz-example"></details><textarea id="answer-input" rows="3" placeholder="在这里写下你的答案…"></textarea></article><div class="quiz-actions"><button id="previous-question" class="secondary-button">← 上一题</button><button id="next-question" class="primary-button">下一题 →</button></div><p class="answer-note">答完后会统一发送给 AI 进行开放式评判。</p></main></div>
+    <div id="toast" class="toast" role="status"></div>
+    <script src="data.js"></script><script src="app.js"></script>
+  </body>
+</html>
