@@ -56,7 +56,7 @@ struct LibraryView: View {
             .navigationDestination(for: GrammarEntry.self) { GrammarDetailView(entry: $0) }
             .searchable(text: $query, prompt: "搜索语法、含义或用法")
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: WenfaToolbar.primaryAction) {
                     Button("开始练习", systemImage: "play.fill") { isShowingSetup = true }
                 }
             }
@@ -67,9 +67,15 @@ struct LibraryView: View {
                 isShowingSetup = false
             }
         }
+#if os(macOS)
+        .sheet(item: $quizConfiguration) { configuration in
+            PracticeFlowView(configuration: configuration, entries: library.entries)
+        }
+#else
         .fullScreenCover(item: $quizConfiguration) { configuration in
             PracticeFlowView(configuration: configuration, entries: library.entries)
         }
+#endif
     }
 
     private func presentPendingQuiz() {
@@ -120,9 +126,9 @@ struct GrammarDetailView: View {
             }
         }
         .navigationTitle(entry.level)
-        .navigationBarTitleDisplayMode(.inline)
+        .wenfaInlineNavigationTitle()
         .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: WenfaToolbar.primaryAction) {
                 Button {
                     toggleFavorite()
                 } label: {

@@ -43,8 +43,10 @@ struct RecordsView: View {
             .navigationTitle("练习记录")
             .toolbar {
                 if !records.isEmpty {
-                    ToolbarItem(placement: .topBarLeading) { EditButton() }
-                    ToolbarItem(placement: .topBarTrailing) {
+#if os(iOS)
+                    ToolbarItem(placement: WenfaToolbar.leadingAction) { EditButton() }
+#endif
+                    ToolbarItem(placement: WenfaToolbar.primaryAction) {
                         Button("清除", role: .destructive) { isShowingClearAlert = true }
                     }
                 }
@@ -98,6 +100,6 @@ struct RecordDetailView: View {
             }
         }
         .navigationTitle(record.title)
-        .navigationBarTitleDisplayMode(.inline)
+        .wenfaInlineNavigationTitle()
     }
 }
