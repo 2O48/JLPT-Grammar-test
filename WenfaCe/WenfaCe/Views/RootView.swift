@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct RootView: View {
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var library = GrammarLibrary()
     @StateObject private var settings = AISettingsStore()
 
@@ -19,5 +20,10 @@ struct RootView: View {
         .font(WenfaFont.regular(17))
         .environmentObject(library)
         .environmentObject(settings)
+        .onChange(of: scenePhase) { _, phase in
+            if phase == .active {
+                settings.refreshFromICloud()
+            }
+        }
     }
 }

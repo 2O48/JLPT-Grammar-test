@@ -48,6 +48,17 @@ struct AISettingsView: View {
 
                 Section {
                     Button("保存设置") { save() }
+                    if let lastSyncDate = settings.lastSyncDate {
+                        LabeledContent("最近同步时间") {
+                            Text(lastSyncDate.formatted(date: .abbreviated, time: .shortened))
+                        }
+                        .foregroundStyle(.secondary)
+                    } else {
+                        LabeledContent("最近同步时间", value: "尚未同步")
+                            .foregroundStyle(.secondary)
+                    }
+                } footer: {
+                    Text("每次保存会以最新内容覆盖所有设备上的旧设置。")
                 }
 
                 Section {
@@ -101,9 +112,9 @@ struct AISettingsView: View {
         focusedField = nil
         do {
             try settings.save()
-            alert = SettingsAlert(title: "已保存", message: "Token 会通过 iCloud 钥匙串同步。")
+            alert = SettingsAlert(title: "已保存", message: "最新设置已提交到 iCloud，并会覆盖旧设置。")
         } catch {
-            showError("钥匙串写入失败：\(error.localizedDescription)")
+            showError("设置同步失败：\(error.localizedDescription)")
         }
     }
 

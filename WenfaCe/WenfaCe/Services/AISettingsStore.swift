@@ -19,11 +19,16 @@ final class AISettingsStore: ObservableObject {
     @Published var instruction: String
     @Published var token = ""
     @Published private(set) var tokenError: String?
+    @Published private(set) var lastSyncDate: Date?
 
     private let baseURLKey = "ai.baseURL"
     private let modelKey = "ai.model"
     private let instructionKey = "ai.instruction"
+    private let lastSettingsUpdateKey = "ai.settings.updatedAt"
+    private let cloudSettingsKey = "ai.settings.v1"
     private let defaults = UserDefaults.standard
+    private let cloudStore = NSUbiquitousKeyValueStore.default
+    private var cloudStoreObserver: NSObjectProtocol?
 
     init() {
         baseURL = defaults.string(forKey: baseURLKey) ?? "https://api.openai.com/v1"
@@ -33,6 +38,23 @@ final class AISettingsStore: ObservableObject {
             token = try KeychainTokenStore.read() ?? KeychainTokenStore.migrateLegacyToken() ?? ""
         } catch {
             tokenError = "无法读取钥匙串中的 Token。"
+        }
+        lastSyncDate = defaults.object(forKey: lastSettingsUpdateKey) as? Date
+        cloudStoreObserver = NotificationCenter.default.addObserver(
+            forName: NSUbiquitousKeyValueStore.didChangeExternallyNotification,
+            object: cloudStore,
+            queue: .main
+        ) { [weak self] _ in
+            Task { @MainActor [weak self] in
+                self?.refreshFromICloud()
+            }
+        }
+        refreshFromICloud()
+    }
+
+    deinit {
+        if let cloudStoreObserver {
+            NotificationCenter.default.removeObserver(cloudStoreObserver)
         }
     }
 
@@ -52,10 +74,17 @@ final class AISettingsStore: ObservableObject {
     }
 
     func save() throws {
-        defaults.set(baseURL.trimmingCharacters(in: .whitespacesAndNewlines), forKey: baseURLKey)
-        defaults.set(model.trimmingCharacters(in: .whitespacesAndNewlines), forKey: modelKey)
-        defaults.set(instruction.trimmingCharacters(in: .whitespacesAndNewlines), forKey: instructionKey)
+        let updatedAt = Date()
+        let payload = SyncedAISettings(
+            baseURL: baseURL.trimmingCharacters(in: .whitespacesAndNewlines),
+            model: model.trimmingCharacters(in: .whitespacesAndNewlines),
+            instruction: instruction.trimmingCharacters(in: .whitespacesAndNewlines),
+            updatedAt: updatedAt
+        )
+        apply(payload)
         try KeychainTokenStore.save(token.trimmingCharacters(in: .whitespacesAndNewlines))
+        cloudStore.set(try JSONEncoder().encode(payload), forKey: cloudSettingsKey)
+        cloudStore.synchronize()
         tokenError = nil
     }
 
@@ -66,6 +95,42 @@ final class AISettingsStore: ObservableObject {
         token = backup.token
         try save()
     }
+
+    func refreshFromICloud() {
+        cloudStore.synchronize()
+        if let data = cloudStore.data(forKey: cloudSettingsKey),
+           let payload = try? JSONDecoder().decode(SyncedAISettings.self, from: data),
+           payload.updatedAt > (lastSyncDate ?? .distantPast) {
+            apply(payload)
+        }
+
+        do {
+            if let syncedToken = try KeychainTokenStore.read(), !syncedToken.isEmpty {
+                token = syncedToken
+            }
+            tokenError = nil
+        } catch {
+            tokenError = "无法读取钥匙串中的 Token。"
+        }
+    }
+
+    private func apply(_ payload: SyncedAISettings) {
+        baseURL = payload.baseURL
+        model = payload.model
+        instruction = payload.instruction
+        lastSyncDate = payload.updatedAt
+        defaults.set(payload.baseURL, forKey: baseURLKey)
+        defaults.set(payload.model, forKey: modelKey)
+        defaults.set(payload.instruction, forKey: instructionKey)
+        defaults.set(payload.updatedAt, forKey: lastSettingsUpdateKey)
+    }
+}
+
+private struct SyncedAISettings: Codable {
+    let baseURL: String
+    let model: String
+    let instruction: String
+    let updatedAt: Date
 }
 
 enum KeychainTokenStore {
