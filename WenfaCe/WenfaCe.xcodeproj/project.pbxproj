@@ -22,6 +22,7 @@
 		A10000000000000000000013 /* Typography.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000015 /* Typography.swift */; };
 		A10000000000000000000014 /* WenfaCe.icon in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* WenfaCe.icon */; };
 		A10000000000000000000015 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* FavoritesView.swift */; };
+		A10000000000000000000016 /* MacRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000018 /* MacRootView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +43,8 @@
 		A20000000000000000000015 /* Typography.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Typography.swift; sourceTree = "<group>"; };
 		A20000000000000000000016 /* WenfaCe.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = WenfaCe.icon; sourceTree = "<group>"; };
 		A20000000000000000000017 /* FavoritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
+		A20000000000000000000018 /* MacRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacRootView.swift; sourceTree = "<group>"; };
+		A20000000000000000000019 /* WenfaCe-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "WenfaCe-macOS.entitlements"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -74,6 +77,7 @@
 				A40000000000000000000007 /* Resources */,
 				A20000000000000000000012 /* Assets.xcassets */,
 				A20000000000000000000013 /* WenfaCe.entitlements */,
+				A20000000000000000000019 /* WenfaCe-macOS.entitlements */,
 			);
 			path = WenfaCe;
 			sourceTree = "<group>";
@@ -106,6 +110,7 @@
 				A20000000000000000000010 /* AISettingsView.swift */,
 				A20000000000000000000015 /* Typography.swift */,
 				A20000000000000000000017 /* FavoritesView.swift */,
+				A20000000000000000000018 /* MacRootView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -216,6 +221,7 @@
 				A10000000000000000000010 /* AISettingsView.swift in Sources */,
 				A10000000000000000000013 /* Typography.swift in Sources */,
 				A10000000000000000000015 /* FavoritesView.swift in Sources */,
+				A10000000000000000000016 /* MacRootView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -243,7 +249,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
@@ -264,7 +270,7 @@
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
-				SDKROOT = iphoneos;
+				SDKROOT = auto;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -275,6 +281,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = WenfaCe;
 				CODE_SIGN_ENTITLEMENTS = WenfaCe/WenfaCe.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "WenfaCe/WenfaCe-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 95VS96F47C;
@@ -284,6 +291,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -291,7 +299,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.2o48.jlptgrammartest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -303,6 +311,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = WenfaCe;
 				CODE_SIGN_ENTITLEMENTS = WenfaCe/WenfaCe.entitlements;
+				"CODE_SIGN_ENTITLEMENTS[sdk=macosx*]" = "WenfaCe/WenfaCe-macOS.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 95VS96F47C;
@@ -312,6 +321,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.education";
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -319,7 +329,7 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.2o48.jlptgrammartest;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTED_PLATFORMS = "macosx iphoneos iphonesimulator";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

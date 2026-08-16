@@ -1,5 +1,9 @@
 import SwiftUI
+#if canImport(UIKit)
 import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
 
 enum WenfaFont {
     static func regular(_ size: CGFloat, relativeTo style: Font.TextStyle = .body) -> Font {
@@ -28,6 +32,7 @@ enum WenfaFont {
 
 enum WenfaTypography {
     static func configure() {
+#if os(iOS)
         let navigationAppearance = UINavigationBarAppearance()
         navigationAppearance.configureWithDefaultBackground()
         navigationAppearance.titleTextAttributes = [.font: UIFont(name: "YuMincho-Demibold", size: 17) ?? .systemFont(ofSize: 17, weight: .semibold)]
@@ -46,5 +51,53 @@ enum WenfaTypography {
         tabAppearance.compactInlineLayoutAppearance = tabItemAppearance
         UITabBar.appearance().standardAppearance = tabAppearance
         UITabBar.appearance().scrollEdgeAppearance = tabAppearance
+#endif
+    }
+}
+
+enum WenfaToolbar {
+    static var primaryAction: ToolbarItemPlacement {
+#if os(macOS)
+        .primaryAction
+#else
+        .topBarTrailing
+#endif
+    }
+
+    static var leadingAction: ToolbarItemPlacement {
+#if os(macOS)
+        .automatic
+#else
+        .topBarLeading
+#endif
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func wenfaInlineNavigationTitle() -> some View {
+#if os(iOS)
+        navigationBarTitleDisplayMode(.inline)
+#else
+        self
+#endif
+    }
+}
+
+extension Color {
+    static var wenfaGroupedBackground: Color {
+#if os(macOS)
+        Color(nsColor: .windowBackgroundColor)
+#else
+        Color(uiColor: .systemGroupedBackground)
+#endif
+    }
+
+    static var wenfaBackground: Color {
+#if os(macOS)
+        Color(nsColor: .textBackgroundColor)
+#else
+        Color(uiColor: .systemBackground)
+#endif
     }
 }

@@ -142,9 +142,9 @@ struct PracticeSetupView: View {
                     Text(direction.detail).font(WenfaFont.textStyle(.footnote)).foregroundStyle(.secondary)
                 }
             }
-            .background(Color(uiColor: .systemGroupedBackground))
+            .background(Color.wenfaGroupedBackground)
             .navigationTitle("设置练习")
-            .navigationBarTitleDisplayMode(.inline)
+            .wenfaInlineNavigationTitle()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) { Button("取消") { dismiss() } }
                 ToolbarItem(placement: .confirmationAction) {
@@ -229,11 +229,11 @@ struct PracticeFlowView: View {
                 .padding()
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color(uiColor: .systemBackground))
+            .background(Color.wenfaBackground)
             .navigationTitle("练习")
-            .navigationBarTitleDisplayMode(.inline)
+            .wenfaInlineNavigationTitle()
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: WenfaToolbar.primaryAction) {
                     Button("结束") { isShowingQuitAlert = true }
                         .disabled(session.isSubmitting)
                 }

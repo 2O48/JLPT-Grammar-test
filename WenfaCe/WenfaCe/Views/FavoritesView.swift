@@ -32,9 +32,11 @@ struct FavoritesView: View {
             .navigationTitle("收藏")
             .navigationDestination(for: GrammarEntry.self) { GrammarDetailView(entry: $0) }
             .toolbar {
+#if os(iOS)
                 if !favorites.isEmpty {
-                    ToolbarItem(placement: .topBarTrailing) { EditButton() }
+                    ToolbarItem(placement: WenfaToolbar.primaryAction) { EditButton() }
                 }
+#endif
             }
         }
     }

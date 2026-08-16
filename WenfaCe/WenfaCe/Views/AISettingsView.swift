@@ -26,17 +26,13 @@ struct AISettingsView: View {
 
                 Section("OpenAI 兼容接口") {
                     TextField("API 地址", text: $settings.baseURL)
-                        .textInputAutocapitalization(.never)
-                        .keyboardType(.URL)
-                        .autocorrectionDisabled()
+                        .wenfaURLInput()
                         .focused($focusedField, equals: .baseURL)
                     TextField("模型名称", text: $settings.model)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
+                        .wenfaAPIInput()
                         .focused($focusedField, equals: .model)
                     SecureField("API Token", text: $settings.token)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
+                        .wenfaAPIInput()
                         .focused($focusedField, equals: .token)
                 }
 
@@ -158,6 +154,29 @@ private enum SettingsField: Hashable {
     case model
     case token
     case instruction
+}
+
+private extension View {
+    @ViewBuilder
+    func wenfaAPIInput() -> some View {
+#if os(iOS)
+        textInputAutocapitalization(.never)
+            .autocorrectionDisabled()
+#else
+        self
+#endif
+    }
+
+    @ViewBuilder
+    func wenfaURLInput() -> some View {
+#if os(iOS)
+        textInputAutocapitalization(.never)
+            .keyboardType(.URL)
+            .autocorrectionDisabled()
+#else
+        self
+#endif
+    }
 }
 
 struct WenfaCeBackupDocument: FileDocument {
