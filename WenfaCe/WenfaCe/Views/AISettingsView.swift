@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 struct AISettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var settings: AISettingsStore
+    @EnvironmentObject private var practiceSync: PracticeDataSyncStore
     @Query(sort: \PracticeRecord.createdAt, order: .reverse) private var records: [PracticeRecord]
     @Query(sort: \GrammarFavorite.createdAt, order: .reverse) private var favorites: [GrammarFavorite]
 
@@ -21,7 +22,7 @@ struct AISettingsView: View {
                     Label(settings.isConfigured ? "AI 已配置" : "AI 未配置", systemImage: settings.isConfigured ? "checkmark.circle" : "exclamationmark.circle")
                         .foregroundStyle(settings.isConfigured ? .green : .secondary)
                 } footer: {
-                    Text("练习记录、收藏和 API Token 会通过 iCloud 同步；其余设置可通过备份文件在设备间迁移。")
+                    Text("保存时会同步 AI 设置、练习记录、收藏和 API Token 到 iCloud。")
                 }
 
                 Section("OpenAI 兼容接口") {
@@ -43,7 +44,7 @@ struct AISettingsView: View {
                 }
 
                 Section {
-                    Button("保存设置") { save() }
+                    Button("保存并同步") { save() }
                     if let lastSyncDate = settings.lastSyncDate {
                         LabeledContent("最近同步时间") {
                             Text(lastSyncDate.formatted(date: .abbreviated, time: .shortened))
@@ -51,6 +52,15 @@ struct AISettingsView: View {
                         .foregroundStyle(.secondary)
                     } else {
                         LabeledContent("最近同步时间", value: "尚未同步")
+                            .foregroundStyle(.secondary)
+                    }
+                    if let lastDataSyncDate = practiceSync.lastSyncDate {
+                        LabeledContent("记录与收藏同步") {
+                            Text(lastDataSyncDate.formatted(date: .abbreviated, time: .shortened))
+                        }
+                        .foregroundStyle(.secondary)
+                    } else {
+                        LabeledContent("记录与收藏同步", value: "尚未同步")
                             .foregroundStyle(.secondary)
                     }
                 } footer: {
@@ -106,11 +116,14 @@ struct AISettingsView: View {
 
     private func save() {
         focusedField = nil
-        do {
-            try settings.save()
-            alert = SettingsAlert(title: "已保存", message: "最新设置已提交到 iCloud，并会覆盖旧设置。")
-        } catch {
-            showError("设置同步失败：\(error.localizedDescription)")
+        Task { @MainActor in
+            do {
+                try settings.save()
+                try await practiceSync.sync(using: modelContext)
+                alert = SettingsAlert(title: "已同步", message: "AI 设置、练习记录和收藏已提交到 iCloud。")
+            } catch {
+                showError("设置同步失败：\(error.localizedDescription)")
+            }
         }
     }
 
@@ -132,15 +145,18 @@ struct AISettingsView: View {
             }
         }
 
-        do {
-            let backup = try WenfaCeBackup.decode(Data(contentsOf: url))
-            let summary = try backup.apply(to: modelContext, settingsStore: settings)
-            alert = SettingsAlert(
-                title: "导入完成",
-                message: "已恢复 AI 设置，新增 \(summary.records) 条练习记录和 \(summary.favorites) 条收藏。"
-            )
-        } catch {
-            showError("无法导入备份：\(error.localizedDescription)")
+        Task { @MainActor in
+            do {
+                let backup = try WenfaCeBackup.decode(Data(contentsOf: url))
+                let summary = try backup.apply(to: modelContext, settingsStore: settings)
+                try await practiceSync.sync(using: modelContext)
+                alert = SettingsAlert(
+                    title: "导入完成",
+                    message: "已恢复 AI 设置，新增 \(summary.records) 条练习记录和 \(summary.favorites) 条收藏。"
+                )
+            } catch {
+                showError("无法导入备份：\(error.localizedDescription)")
+            }
         }
     }
 

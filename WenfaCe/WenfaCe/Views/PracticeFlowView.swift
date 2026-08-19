@@ -163,6 +163,7 @@ struct PracticeFlowView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     @EnvironmentObject private var settings: AISettingsStore
+    @EnvironmentObject private var practiceSync: PracticeDataSyncStore
     @StateObject private var session: PracticeSession
     @State private var isShowingQuitAlert = false
     @State private var isShowingCompletion = false
@@ -264,7 +265,12 @@ struct PracticeFlowView: View {
             let items = await session.evaluatedItems(using: settings.configuration)
             let selectedLevels = configuration.levels.sorted().joined(separator: " / ")
             modelContext.insert(PracticeRecord(title: "\(items.count) 题 · \(selectedLevels)", items: items))
-            try? modelContext.save()
+            do {
+                try modelContext.save()
+                try await practiceSync.sync(using: modelContext)
+            } catch {
+                // The completed practice remains local and will retry from the manual sync button.
+            }
             isShowingCompletion = true
         }
     }

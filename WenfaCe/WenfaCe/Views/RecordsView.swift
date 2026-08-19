@@ -3,6 +3,7 @@ import SwiftUI
 
 struct RecordsView: View {
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var practiceSync: PracticeDataSyncStore
     @Query(sort: \PracticeRecord.createdAt, order: .reverse) private var records: [PracticeRecord]
     @State private var isShowingClearAlert = false
 
@@ -62,12 +63,19 @@ struct RecordsView: View {
 
     private func delete(at offsets: IndexSet) {
         for index in offsets { modelContext.delete(records[index]) }
-        try? modelContext.save()
+        persistAndSync()
     }
 
     private func clearAll() {
         for record in records { modelContext.delete(record) }
+        persistAndSync()
+    }
+
+    private func persistAndSync() {
         try? modelContext.save()
+        Task { @MainActor in
+            try? await practiceSync.sync(using: modelContext)
+        }
     }
 }
 

@@ -23,6 +23,7 @@
 		A10000000000000000000014 /* WenfaCe.icon in Resources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000016 /* WenfaCe.icon */; };
 		A10000000000000000000015 /* FavoritesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000017 /* FavoritesView.swift */; };
 		A10000000000000000000016 /* MacRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000018 /* MacRootView.swift */; };
+		A10000000000000000000017 /* PracticeDataSyncStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000021 /* PracticeDataSyncStore.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,7 @@
 		A20000000000000000000017 /* FavoritesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesView.swift; sourceTree = "<group>"; };
 		A20000000000000000000018 /* MacRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacRootView.swift; sourceTree = "<group>"; };
 		A20000000000000000000019 /* WenfaCe-macOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "WenfaCe-macOS.entitlements"; sourceTree = "<group>"; };
+		A20000000000000000000021 /* PracticeDataSyncStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PracticeDataSyncStore.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -98,6 +100,7 @@
 			children = (
 				A20000000000000000000004 /* AISettingsStore.swift */,
 				A20000000000000000000005 /* AIClient.swift */,
+				A20000000000000000000021 /* PracticeDataSyncStore.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -224,6 +227,7 @@
 				A10000000000000000000013 /* Typography.swift in Sources */,
 				A10000000000000000000015 /* FavoritesView.swift in Sources */,
 				A10000000000000000000016 /* MacRootView.swift in Sources */,
+				A10000000000000000000017 /* PracticeDataSyncStore.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

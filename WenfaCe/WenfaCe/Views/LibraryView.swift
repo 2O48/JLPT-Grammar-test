@@ -105,6 +105,7 @@ struct GrammarRow: View {
 struct GrammarDetailView: View {
     let entry: GrammarEntry
     @Environment(\.modelContext) private var modelContext
+    @EnvironmentObject private var practiceSync: PracticeDataSyncStore
     @Query private var favorites: [GrammarFavorite]
 
     private var favorite: GrammarFavorite? {
@@ -146,5 +147,8 @@ struct GrammarDetailView: View {
             modelContext.insert(GrammarFavorite(grammarID: entry.id))
         }
         try? modelContext.save()
+        Task { @MainActor in
+            try? await practiceSync.sync(using: modelContext)
+        }
     }
 }

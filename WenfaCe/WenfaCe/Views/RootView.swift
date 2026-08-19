@@ -2,8 +2,10 @@ import SwiftUI
 
 struct RootView: View {
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.modelContext) private var modelContext
     @StateObject private var library = GrammarLibrary()
     @StateObject private var settings = AISettingsStore()
+    @StateObject private var practiceSync = PracticeDataSyncStore()
 
     var body: some View {
         Group {
@@ -26,9 +28,14 @@ struct RootView: View {
         .font(WenfaFont.regular(17))
         .environmentObject(library)
         .environmentObject(settings)
+        .environmentObject(practiceSync)
+        .task {
+            await practiceSync.refreshFromICloud(using: modelContext)
+        }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {
                 settings.refreshFromICloud()
+                Task { await practiceSync.refreshFromICloud(using: modelContext) }
             }
         }
     }
